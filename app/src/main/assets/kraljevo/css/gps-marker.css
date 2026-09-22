@@ -1,0 +1,40 @@
+/* Center core of the GPS marker */
+.gps-pulse-icon {
+    background: #ff0000;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 4px rgba(0,0,0,0.5);
+    position: relative;
+}
+
+/* Pulsing outer ring */
+.gps-pulse-icon::after {
+    content: '';
+    position: absolute;
+    top: -2px; /* Align with border offset */
+    left: -2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid #ff0000;
+    animation: gpsPulse 1.8s ease-out infinite;
+    opacity: 0;
+}
+
+/* Animation sequence for the expanding ring */
+@keyframes gpsPulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    70% {
+        transform: scale(3.5);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(3.5);
+        opacity: 0;
+    }
+}
