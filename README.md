@@ -1,4 +1,4 @@
-# Carta Nova 🗺️
+# Carta Nova
 
 [![Version](https://shields.io)](https://github.com)
 [![Language](https://shields.io)](https://kotlinlang.org)
@@ -6,11 +6,17 @@
 
 **Carta Nova** is a lightweight, native Android application written in Kotlin designed to display completely offline maps. It allows users to import local map packages and interact with them seamlessly without requiring any internet connection.
 
+You can find the app on Google Play at https://play.google.com/store/apps/details?id=net.serbiamap.cartanova
+
 The app serves as a secure, offline container that renders web-based map solutions (like **LeafletJS**) locally on the device.
+
+Majority of the code is written incrementally by ChatGPT and Gemini, therefore it looks ugly in it's initial release.
+The aim was more about crisp and smooth display of vector map data, so the Kotlin code is just a wrapper around LeafletJS
+functionality.
 
 ---
 
-## ✨ Features
+## Features
 
 - **100% Offline Capability:** No internet permission or data connection required.
 - **LeafletJS Support:** Smoothly renders interactive maps, including SVG vector graphics, static images, and map tiles.
@@ -21,7 +27,7 @@ The app serves as a secure, offline container that renders web-based map solutio
 
 ---
 
-## 📦 Map Package Structure
+## Map Package Structure
 
 To import a map into Carta Nova, it must be compressed into a standard `.zip` file containing an entry point (`index.html`) and a metadata file (`map.json`) in the same root directory.
 
