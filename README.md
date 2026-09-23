@@ -2,7 +2,8 @@
 
 **Carta Nova** is a lightweight, native Android application written in Kotlin designed to display completely offline maps. It allows users to import local map packages and interact with them seamlessly without requiring any internet connection.
 
-You can find the app on Google Play at [Carta Nova on Google Play](https://play.google.com/store/apps/details?id=net.serbiamap.cartanova).
+You can find the working version at <a href="https://play.google.com/store/apps/details?id=net.serbiamap.cartanova" target="_blank" rel="noopener noreferrer">Carta Nova on Google Play</a>.
+
 
 The app serves as a secure, offline container that renders web-based map solutions (like **LeafletJS**) locally on the device.
 
