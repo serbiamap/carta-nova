@@ -3,10 +3,13 @@ package net.serbiamap.cartanova
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.location.Location
-import android.location.LocationListener
-import android.location.LocationManager
-import android.os.HandlerThread
 import android.net.Uri
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -79,9 +82,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
     private lateinit var mapsRoot: File
     private var currentMapTitle: String = ""
-    private var locationThread: HandlerThread? = null
-    private var locationManager: LocationManager? = null
-    private var locationListener: LocationListener? = null
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var locationCallback: LocationCallback? = null
     private var latestLocation: Location? = null
     private var currentMapBounds: List<Double>? = null
     private var mapBridge: MapBridge? = null
@@ -102,6 +104,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         mapsRoot = File(filesDir, "maps")
         if (!mapsRoot.exists()) mapsRoot.mkdirs()
 
@@ -473,61 +476,43 @@ private fun showSplash() {
     }
 
     private fun startLocationAcquisition() {
-        if (locationThread != null) return
+        if (locationCallback != null) return
 
-        val thread = HandlerThread("VagabundoLocation").also { it.start() }
-        locationThread = thread
-        val manager = getSystemService(LOCATION_SERVICE) as LocationManager
-        locationManager = manager
+        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 2000L)
+            .setMinUpdateIntervalMillis(1000L)
+            .build()
 
-        val listener = object : LocationListener {
-            override fun onLocationChanged(location: Location) {
+        val callback = object : LocationCallback() {
+            override fun onLocationResult(result: LocationResult) {
+                val location = result.lastLocation ?: return
                 latestLocation = location
                 runOnUiThread {
                     updateGpsOnMap()
                 }
             }
         }
-        locationListener = listener
+        locationCallback = callback
 
         try {
-            val looper = thread.looper
-            if (manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                manager.requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER,
-                    10000L,
-                    0f,
-                    listener,
-                    looper
-                )
-            }
-            if (manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-                manager.requestLocationUpdates(
-                    LocationManager.NETWORK_PROVIDER,
-                    10000L,
-                    0f,
-                    listener,
-                    looper
-                )
-            }
+            fusedLocationClient.requestLocationUpdates(
+                locationRequest,
+                callback,
+                Looper.getMainLooper()
+            )
         } catch (_: SecurityException) {
             stopLocationAcquisition()
         }
     }
 
     private fun stopLocationAcquisition() {
-        val manager = locationManager
-        val listener = locationListener
-        if (manager != null && listener != null) {
+        val callback = locationCallback
+        if (callback != null) {
             try {
-                manager.removeUpdates(listener)
+                fusedLocationClient.removeLocationUpdates(callback)
             } catch (_: SecurityException) {
             }
+            locationCallback = null
         }
-        locationListener = null
-        locationManager = null
-        locationThread?.quitSafely()
-        locationThread = null
     }
 
     private fun showImportMenu() {
@@ -552,7 +537,7 @@ private fun showSplash() {
     private fun showAboutDialog() {
         val aboutMessage = """
         <h3><b>Carta Nova</b></h3>
-        <p>Version 1.0<br/>
+        <p>Version 1.1<br/>
         Offline Mapping Application</p>
         
         <p><b>Author:</b> Predrag Dukanac<br/>
